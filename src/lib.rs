@@ -73,6 +73,13 @@ impl From<String> for Item<'_> {
     }
 }
 
+impl<'a> From<&'a String> for Item<'a> {
+    fn from(key: &'a String) -> Self {
+        use Item::*;
+        Key(Cow::from(key.as_str()))
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct KeyPath<'a> {
     items: Vec<Item<'a>>
@@ -213,6 +220,15 @@ mod tests {
         let path = KeyPath::new();
         let result = path + "a".to_owned();
         assert_eq!(result, KeyPath { items: vec![Item::Key("a".to_owned().into())] })
+    }
+
+    #[test]
+    fn add_works_for_string_ref() {
+        let path = KeyPath::new();
+        let string = "abc".to_owned();
+        let string_ref = &string;
+        let result = path + string_ref;
+        assert_eq!(result, KeyPath { items: vec![Item::Key("abc".into())] })
     }
 
     #[test]
