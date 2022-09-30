@@ -1,5 +1,5 @@
 use core::fmt::{Display, Formatter, Write};
-use std::ops::Add;
+use std::ops::{Add, Index};
 use std::borrow::Cow;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -78,13 +78,18 @@ pub struct KeyPath<'a> {
     items: Vec<Item<'a>>
 }
 
-impl KeyPath<'_> {
+impl<'a> KeyPath<'a> {
+
     pub fn new() -> Self {
         Self { items: vec![] }
     }
 
     pub fn len(&self) -> usize {
         self.items.len()
+    }
+
+    pub fn get(&self, index: usize) -> Option<&Item<'a>> {
+        self.items.get(index)
     }
 }
 
@@ -110,6 +115,14 @@ impl<'a, T> Add<T> for KeyPath<'a> where T: Into<Item<'a>> {
 
     fn add(self, rhs: T) -> Self::Output {
         (&self).add(rhs)
+    }
+}
+
+impl<'a> Index<usize> for KeyPath<'a> {
+    type Output = Item<'a>;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.items[index]
     }
 }
 
@@ -207,5 +220,19 @@ mod tests {
         let path = path!["where", "items", 5, "name"];
         let result = format!("{}", path);
         assert_eq!(&result, "where.items.5.name");
+    }
+
+    #[test]
+    fn index_works() {
+        let path = path!["orderBy", "name"];
+        let result = &path[0];
+        assert_eq!(result, &("orderBy".into()))
+    }
+
+    #[test]
+    fn get_works() {
+        let path = path!["orderBy", "name"];
+        let result = path.get(0).unwrap();
+        assert_eq!(result, &("orderBy".into()))
     }
 }
