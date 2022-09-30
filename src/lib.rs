@@ -100,6 +100,12 @@ impl<'a> KeyPath<'a> {
     }
 }
 
+impl<'a> AsRef<KeyPath<'a>> for KeyPath<'a> {
+    fn as_ref(&self) -> &KeyPath<'a> {
+        &self
+    }
+}
+
 impl Display for KeyPath<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         let s = self.items.iter().map(|i| i.to_string()).collect::<Vec<String>>().join(".");
@@ -250,5 +256,15 @@ mod tests {
         let path = path!["orderBy", "name"];
         let result = path.get(0).unwrap();
         assert_eq!(result, &("orderBy".into()))
+    }
+
+    #[test]
+    fn as_ref_works() {
+        let path = path!["a", "b"];
+        let path2 = path.as_ref();
+        let path3 = path2.as_ref();
+        assert_eq!(&path, path2);
+        assert_eq!(path2, path3);
+
     }
 }
