@@ -113,6 +113,7 @@ impl<'a, T> Add<T> for KeyPath<'a> where T: Into<Item<'a>> {
     }
 }
 
+#[macro_export]
 macro_rules! path {
     (@single $($x:tt)*) => (());
     (@count $($rest:expr),*) => (<[()]>::len(&[$(path!(@single $rest)),*]));
