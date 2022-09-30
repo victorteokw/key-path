@@ -87,8 +87,8 @@ pub struct KeyPath<'a> {
 
 impl<'a> KeyPath<'a> {
 
-    pub fn new() -> Self {
-        Self { items: vec![] }
+    pub fn new(items: Vec<Item<'a>>) -> Self {
+        Self { items }
     }
 
     pub fn len(&self) -> usize {
@@ -97,6 +97,12 @@ impl<'a> KeyPath<'a> {
 
     pub fn get(&self, index: usize) -> Option<&Item<'a>> {
         self.items.get(index)
+    }
+}
+
+impl Default for KeyPath<'_> {
+    fn default() -> Self {
+        Self { items: vec![] }
     }
 }
 
@@ -152,7 +158,7 @@ macro_rules! path {
             $(
                 let _ = _items.push(path!(@item $key));
             )*
-            $crate::KeyPath { items: _items }
+            $crate::KeyPath::new(_items)
         }
     };
 }
@@ -164,7 +170,7 @@ mod tests {
     #[test]
     fn macro_works_for_empty() {
         let result = path![];
-        assert_eq!(result, KeyPath::new());
+        assert_eq!(result, KeyPath::default());
     }
 
     #[test]
@@ -209,28 +215,28 @@ mod tests {
 
     #[test]
     fn add_works_for_number() {
-        let path = KeyPath::new();
+        let path = KeyPath::default();
         let result = path + 45;
         assert_eq!(result, KeyPath { items: vec![Item::Index(45)] })
     }
 
     #[test]
     fn add_works_for_str() {
-        let path = KeyPath::new();
+        let path = KeyPath::default();
         let result = path + "";
         assert_eq!(result, KeyPath { items: vec![Item::Key("".into())] })
     }
 
     #[test]
     fn add_works_for_string() {
-        let path = KeyPath::new();
+        let path = KeyPath::default();
         let result = path + "a".to_owned();
         assert_eq!(result, KeyPath { items: vec![Item::Key("a".to_owned().into())] })
     }
 
     #[test]
     fn add_works_for_string_ref() {
-        let path = KeyPath::new();
+        let path = KeyPath::default();
         let string = "abc".to_owned();
         let string_ref = &string;
         let result = path + string_ref;
