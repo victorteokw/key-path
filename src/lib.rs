@@ -117,7 +117,7 @@ impl<'a, T> Add<T> for KeyPath<'a> where T: Into<Item<'a>> {
 macro_rules! path {
     (@single $($x:tt)*) => (());
     (@count $($rest:expr),*) => (<[()]>::len(&[$(path!(@single $rest)),*]));
-    (@item $other: expr) => (Item::from($other));
+    (@item $other: expr) => (crate::Item::from($other));
     ($($key:expr,)+) => { path!($($key),+) };
     ($($key:expr),*) => {
         {
