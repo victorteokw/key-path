@@ -161,8 +161,8 @@ impl<'a> Index<Range<usize>> for KeyPath<'a> {
     }
 }
 
-impl<'a> From<&[Item<'a>]> for KeyPath<'a> {
-    fn from(items: &[Item]) -> Self {
+impl<'a> From<&'a [Item<'a>]> for KeyPath<'a> {
+    fn from(items: &'a [Item<'a>]) -> Self {
         Self { items: items.to_vec() }
     }
 }
