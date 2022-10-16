@@ -102,6 +102,10 @@ impl<'a> KeyPath<'a> {
     pub fn last(&self) -> Option<&Item<'a>> {
         self.items.last()
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.items.is_empty()
+    }
 }
 
 impl Default for KeyPath<'_> {
