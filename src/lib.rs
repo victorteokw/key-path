@@ -1,5 +1,5 @@
-use core::fmt::{Display, Formatter, Write};
-use std::ops::{Add, Index};
+use core::fmt::{Display, Formatter};
+use std::ops::{Add, Index, Range};
 use std::borrow::Cow;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -149,6 +149,14 @@ impl<'a> Index<usize> for KeyPath<'a> {
     }
 }
 
+impl<'a> Index<Range<usize>> for KeyPath<'a> {
+    type Output = [Item<'a>];
+
+    fn index(&self, index: Range<usize>) -> &Self::Output {
+        &self.items[index]
+    }
+}
+
 #[macro_export]
 macro_rules! path {
     (@single $($x:tt)*) => (());
@@ -262,10 +270,24 @@ mod tests {
     }
 
     #[test]
+    fn index_with_range_works() {
+        let path = path!["orderBy", "name", 3, "good"];
+        let result = &path[0..2];
+        assert_eq!(result, &[Item::Key(Cow::Borrowed("orderBy")), Item::Key(Cow::Borrowed("name"))])
+    }
+
+    #[test]
     fn get_works() {
         let path = path!["orderBy", "name"];
         let result = path.get(0).unwrap();
         assert_eq!(result, &("orderBy".into()))
+    }
+
+    #[test]
+    fn last_works() {
+        let path = path!["orderBy", "name"];
+        let result = path.last().unwrap();
+        assert_eq!(result, &("name".into()))
     }
 
     #[test]
