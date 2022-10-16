@@ -98,6 +98,10 @@ impl<'a> KeyPath<'a> {
     pub fn get(&self, index: usize) -> Option<&Item<'a>> {
         self.items.get(index)
     }
+
+    pub fn last(&self) -> Option<&Item<'a>> {
+        self.items.last()
+    }
 }
 
 impl Default for KeyPath<'_> {
