@@ -1,14 +1,13 @@
 use core::fmt::{Display, Formatter};
 use std::ops::{Add, Index, Range};
-use std::borrow::Cow;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub enum Item<'a> {
-    Key(Cow<'a, str>),
+pub enum Item {
+    Key(String),
     Index(usize),
 }
 
-impl Display for Item<'_> {
+impl Display for Item {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         match self {
             Item::Key(s) => f.write_str(s.as_ref()),
@@ -17,7 +16,7 @@ impl Display for Item<'_> {
     }
 }
 
-impl Item<'_> {
+impl Item {
 
     pub fn is_key(&self) -> bool {
         use Item::*;
@@ -52,42 +51,42 @@ impl Item<'_> {
     }
 }
 
-impl From<usize> for Item<'_> {
+impl From<usize> for Item {
     fn from(index: usize) -> Self {
         use Item::*;
         Index(index)
     }
 }
 
-impl<'a> From<&'a str> for Item<'a> {
-    fn from(key: &'a str) -> Self {
+impl From<&str> for Item {
+    fn from(key: &str) -> Self {
         use Item::*;
-        Key(Cow::from(key))
+        Key(String::from(key))
     }
 }
 
-impl From<String> for Item<'_> {
+impl From<String> for Item {
     fn from(key: String) -> Self {
         use Item::*;
-        Key(Cow::from(key))
+        Key(String::from(key))
     }
 }
 
-impl<'a> From<&'a String> for Item<'a> {
-    fn from(key: &'a String) -> Self {
+impl From<&String> for Item {
+    fn from(key: &String) -> Self {
         use Item::*;
-        Key(Cow::from(key.as_str()))
+        Key(String::from(key.as_str()))
     }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct KeyPath<'a> {
-    items: Vec<Item<'a>>
+pub struct KeyPath {
+    items: Vec<Item>
 }
 
-impl<'a> KeyPath<'a> {
+impl KeyPath {
 
-    pub fn new(items: Vec<Item<'a>>) -> Self {
+    pub fn new(items: Vec<Item>) -> Self {
         Self { items }
     }
 
@@ -95,11 +94,11 @@ impl<'a> KeyPath<'a> {
         self.items.len()
     }
 
-    pub fn get(&self, index: usize) -> Option<&Item<'a>> {
+    pub fn get(&self, index: usize) -> Option<&Item> {
         self.items.get(index)
     }
 
-    pub fn last(&self) -> Option<&Item<'a>> {
+    pub fn last(&self) -> Option<&Item> {
         self.items.last()
     }
 
@@ -108,27 +107,27 @@ impl<'a> KeyPath<'a> {
     }
 }
 
-impl Default for KeyPath<'_> {
+impl Default for KeyPath {
     fn default() -> Self {
         Self { items: vec![] }
     }
 }
 
-impl<'a> AsRef<KeyPath<'a>> for KeyPath<'a> {
-    fn as_ref(&self) -> &KeyPath<'a> {
+impl AsRef<KeyPath> for KeyPath {
+    fn as_ref(&self) -> &KeyPath {
         &self
     }
 }
 
-impl Display for KeyPath<'_> {
+impl Display for KeyPath {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         let s = self.items.iter().map(|i| i.to_string()).collect::<Vec<String>>().join(".");
         f.write_str(&s)
     }
 }
 
-impl<'a, T> Add<T> for &KeyPath<'a> where T: Into<Item<'a>> {
-    type Output = KeyPath<'a>;
+impl<'a, T> Add<T> for &KeyPath where T: Into<Item> {
+    type Output = KeyPath;
 
     fn add(self, rhs: T) -> Self::Output {
         let mut items = self.items.clone();
@@ -137,7 +136,7 @@ impl<'a, T> Add<T> for &KeyPath<'a> where T: Into<Item<'a>> {
     }
 }
 
-impl<'a, T> Add<T> for KeyPath<'a> where T: Into<Item<'a>> {
+impl<'a, T> Add<T> for KeyPath where T: Into<Item> {
     type Output = Self;
 
     fn add(self, rhs: T) -> Self::Output {
@@ -145,24 +144,24 @@ impl<'a, T> Add<T> for KeyPath<'a> where T: Into<Item<'a>> {
     }
 }
 
-impl<'a> Index<usize> for KeyPath<'a> {
-    type Output = Item<'a>;
+impl Index<usize> for KeyPath {
+    type Output = Item;
 
     fn index(&self, index: usize) -> &Self::Output {
         &self.items[index]
     }
 }
 
-impl<'a> Index<Range<usize>> for KeyPath<'a> {
-    type Output = [Item<'a>];
+impl Index<Range<usize>> for KeyPath {
+    type Output = [Item];
 
     fn index(&self, index: Range<usize>) -> &Self::Output {
         &self.items[index]
     }
 }
 
-impl<'a> From<&'a [Item<'a>]> for KeyPath<'a> {
-    fn from(items: &'a [Item<'a>]) -> Self {
+impl From<&[Item]> for KeyPath {
+    fn from(items: &[Item]) -> Self {
         Self { items: items.to_vec() }
     }
 }
@@ -283,7 +282,7 @@ mod tests {
     fn index_with_range_works() {
         let path = path!["orderBy", "name", 3, "good"];
         let result = &path[0..2];
-        assert_eq!(result, &[Item::Key(Cow::Borrowed("orderBy")), Item::Key(Cow::Borrowed("name"))])
+        assert_eq!(result, &[Item::Key("orderBy".to_string()), Item::Key("name".to_string())])
     }
 
     #[test]
