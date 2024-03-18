@@ -314,4 +314,10 @@ mod tests {
         assert_eq!(path2, path3);
 
     }
+
+    #[test]
+    fn to_string_works() {
+        let path = path!["a", 2, "3"];
+        assert_eq!(&path.to_string(), "a.2.3");
+    }
 }
