@@ -132,6 +132,12 @@ impl From<KeyPath> for String {
     }
 }
 
+impl From<&KeyPath> for String {
+    fn from(value: &KeyPath) -> Self {
+        value.to_string()
+    }
+}
+
 impl<'a, T> Add<T> for &KeyPath where T: Into<Item> {
     type Output = KeyPath;
 
@@ -319,5 +325,12 @@ mod tests {
     fn to_string_works() {
         let path = path!["a", 2, "3"];
         assert_eq!(&path.to_string(), "a.2.3");
+    }
+
+    #[test]
+    fn ref_to_string_works() {
+        let path = path!["a", 2, "3"];
+        let path_ref = &path;
+        assert_eq!(&path_ref.to_string(), "a.2.3");
     }
 }
