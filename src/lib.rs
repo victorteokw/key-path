@@ -126,6 +126,12 @@ impl Display for KeyPath {
     }
 }
 
+impl From<KeyPath> for String {
+    fn from(value: KeyPath) -> Self {
+        value.to_string()
+    }
+}
+
 impl<'a, T> Add<T> for &KeyPath where T: Into<Item> {
     type Output = KeyPath;
 
