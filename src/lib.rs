@@ -105,6 +105,10 @@ impl KeyPath {
     pub fn is_empty(&self) -> bool {
         self.items.is_empty()
     }
+
+    pub fn iter(&self) -> KeyPathIter {
+        KeyPathIter { key_path: self, index: 0 }
+    }
 }
 
 impl Default for KeyPath {
@@ -175,6 +179,39 @@ impl Index<Range<usize>> for KeyPath {
 impl From<&[Item]> for KeyPath {
     fn from(items: &[Item]) -> Self {
         Self { items: items.to_vec() }
+    }
+}
+
+pub struct KeyPathIter<'a> {
+    key_path: &'a KeyPath,
+    index: usize,
+}
+
+impl<'a> Iterator for KeyPathIter<'a> {
+    type Item = &'a Item;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let result = self.key_path.get(self.index);
+        self.index += 1;
+        result
+    }
+}
+
+impl<'a> IntoIterator for &'a KeyPath {
+    type Item = &'a Item;
+    type IntoIter = KeyPathIter<'a>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        KeyPathIter { key_path: self, index: 0 }
+    }
+}
+
+impl<'a> IntoIterator for KeyPath {
+    type Item = Item;
+    type IntoIter = <Vec<Item> as IntoIterator>::IntoIter;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.items.into_iter()
     }
 }
 
@@ -332,5 +369,26 @@ mod tests {
         let path = path!["a", 2, "3"];
         let path_ref = &path;
         assert_eq!(&path_ref.to_string(), "a.2.3");
+    }
+
+    #[test]
+    fn iter_works() {
+        let path = path!["a", 2, "3"];
+        let path = &path;
+        let mut result = "".to_owned();
+        for item in path {
+            result += format!("{}", item).as_str();
+        }
+        assert_eq!(&result, "a23");
+    }
+
+    #[test]
+    fn into_iter_works() {
+        let path = path!["a", 2, "3"];
+        let mut result = "".to_owned();
+        for item in path {
+            result += format!("{}", item).as_str();
+        }
+        assert_eq!(&result, "a23");
     }
 }
